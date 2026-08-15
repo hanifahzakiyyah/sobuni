@@ -56,13 +56,13 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      <Navbar isAdmin={isAdmin}/>
 
       <Hero isAdmin={isAdmin} />
 
       <Catalog isAdmin={isAdmin}/>
-      <Why />
-      <Footer />
+      <Why isAdmin={isAdmin} />
+      <Footer isAdmin={isAdmin}/>
 
       {/* ================= LOGIN ================= */}
 
@@ -85,7 +85,10 @@ function App() {
             </p>
 
             <button
-              onClick={() => signOut(auth)}
+              onClick={async () => {
+                await signOut(auth);
+                window.location.href = "https://sobuni.vercel.app";
+              }}
               className="rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
             >
               Logout

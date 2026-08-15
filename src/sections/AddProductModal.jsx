@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   collection,
   addDoc,
+  getDocs
 } from "firebase/firestore";
 
 import { db } from "../firebase/config";
@@ -16,6 +17,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
   const [netto, setNetto] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
+  const [categories, setCategories] = useState([]);
 
   const [list, setList] = useState([""]);
   const [caraPakai, setCaraPakai] = useState([""]);
@@ -23,6 +25,27 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
   const [images, setImages] = useState([]);
 
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const snapshot = await getDocs(
+          collection(db, "categories")
+        );
+
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setCategories(data);
+      } catch (error) {
+        console.error("Gagal mengambil kategori:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
 
   // =====================================================
@@ -529,22 +552,34 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   Category
                 </label>
 
-                <input
-                  type="text"
+                <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  placeholder="facial-wash"
                   className="
                     w-full
                     rounded-lg
                     border
                     border-gray-300
+                    bg-white
                     px-4
                     py-3
                     outline-none
                     focus:border-gray-700
                   "
-                />
+                >
+                  <option value="">
+                    Pilih kategori
+                  </option>
+
+                  {categories.map((item) => (
+                    <option
+                      key={item.id}
+                      value={item.slug}
+                    >
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
 
               </div>
 

@@ -6,6 +6,7 @@ import ProductDetail from "./ProductDetail";
 
 import AddProductModal from "./AddProductModal";
 import { fetchSignInMethodsForEmail } from "firebase/auth/web-extension";
+import CategoryModal from "./CategoryModal";
 
 
 const Catalog = ({isAdmin}) => {
@@ -14,6 +15,7 @@ const Catalog = ({isAdmin}) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const fetchCatalog = async () => {
     try {
@@ -53,7 +55,7 @@ const Catalog = ({isAdmin}) => {
   }
 
   return (
-    <section className="bg-[#f1f2f3] px-6 py-20 md:px-10 md:py-24">
+    <section className="bg-[#f1f2f3] px-6 py-20 md:px-10 md:py-24" id="catalog">
 
       {/* ================= HEADER ================= */}
       <div className="mx-auto mb-20 text-center">
@@ -64,16 +66,33 @@ const Catalog = ({isAdmin}) => {
         <h2 className="mt-7 font-serif text-[38px] leading-none tracking-[-1.5px] text-[#1d1d1f] md:text-[48px]">
           Produk kami
         </h2>
-        <button
-          onClick={() => setShowAddProduct(true)}
-        >
-          + Tambah Produk
-        </button>
+        <div className="flex flex-row w-40 items-center justify-center m-auto gap-2 mt-5"> 
+          <button
+            onClick={() => setShowAddProduct(true)}
+            className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
+          >
+            Tambah Produk
+          </button>
+          <button
+            onClick={() => setIsCategoryModalOpen(true)}
+            className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
+          >
+            Tambah Categories
+          </button>
+        </div>
 
         <AddProductModal
           isOpen={showAddProduct}
           onClose={() => setShowAddProduct(false)}
           onProductAdded={fetchCatalog}
+        />
+
+        <CategoryModal
+          isOpen={isCategoryModalOpen}
+          onClose={() => setIsCategoryModalOpen(false)}
+          categories={categories}
+          onSaved={fetchCatalog}
+          isAdmin={isAdmin}
         />
 
       </div>
@@ -181,7 +200,7 @@ const Catalog = ({isAdmin}) => {
         <ProductDetail
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
-          isAdmin
+          isAdmin={isAdmin}
         />
       )}
 

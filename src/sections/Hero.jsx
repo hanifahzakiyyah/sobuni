@@ -3,6 +3,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "../firebase/config";
 import EditableText from "./EditableText";
+import EditableImage from "./EditableImage";
 
 
 const Hero = ({isAdmin}) => {
@@ -165,12 +166,24 @@ const Hero = ({isAdmin}) => {
         </div>
 
         {/* Right - Image */}
-        <div className="h-[70vh] min-h-125 md:h-auto p-5 md:p-15">
-          <img
-            src="/hero.png"
-            alt="Sloeskin Gentle Facial Wash"
-            className="h-full w-full object-cover"
-          />
+        <div className="h-[70vh] min-h-125 p-5 md:h-auto md:p-15">
+          <EditableImage
+            value="/hero.png"
+            field="image"
+            collection="siteContent"
+            document="hero"
+            title="Hero Image"
+            isAdmin={isAdmin}
+            className="h-full w-full"
+          >
+            {(value) => (
+              <img
+                src={value}
+                alt="Sloeskin Gentle Facial Wash"
+                className="h-full w-full object-cover"
+              />
+            )}
+          </EditableImage>
         </div>
 
       </div>

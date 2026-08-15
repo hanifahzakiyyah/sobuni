@@ -29,7 +29,7 @@ const ProductDetail = ({ onClose }) => {
         type="button"
         onClick={onClose}
         aria-label="Tutup"
-        className="absolute right-5 top-5 z-[60] flex h-10 w-10 items-center justify-center text-[30px] leading-none text-[#1d1d1f] transition-opacity hover:opacity-50"
+        className="absolute right-5 top-5 z-60 flex h-10 w-10 items-center justify-center text-[30px] leading-none text-[#1d1d1f] transition-opacity hover:opacity-50"
       >
         ×
       </button>

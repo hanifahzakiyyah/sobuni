@@ -13,9 +13,10 @@ import Admin from "./sections/Admin";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminAccount, setIsAdminAccount] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
+  // Apakah URL sedang berada di mode admin?
   const isAdminMode =
     new URLSearchParams(window.location.search).get("aku") === "admin";
 
@@ -28,13 +29,13 @@ function App() {
           const adminRef = doc(db, "admins", currentUser.uid);
           const adminSnap = await getDoc(adminRef);
 
-          setIsAdmin(adminSnap.exists());
+          setIsAdminAccount(adminSnap.exists());
         } catch (error) {
           console.error("Gagal mengecek admin:", error);
-          setIsAdmin(false);
+          setIsAdminAccount(false);
         }
       } else {
-        setIsAdmin(false);
+        setIsAdminAccount(false);
       }
 
       setAuthLoading(false);
@@ -47,21 +48,34 @@ function App() {
     return null;
   }
 
+  // Admin UI hanya aktif kalau:
+  // 1. URL ?aku=admin
+  // 2. Sudah login
+  // 3. Akun terdaftar sebagai admin
+  const isAdmin = isAdminMode && !!user && isAdminAccount;
+
   return (
     <>
       <Navbar />
-      <Hero />
-      <Catalog />
+
+      <Hero isAdmin={isAdmin} />
+
+      <Catalog isAdmin={isAdmin}/>
       <Why />
       <Footer />
 
-      {/* Belum login */}
+      {/* ================= LOGIN ================= */}
+
       {isAdminMode && !user && <Admin />}
 
-      {/* Sudah login tetapi BUKAN admin */}
-      {isAdminMode && user && !isAdmin && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-md">
+
+      {/* ================= ACCESS DENIED ================= */}
+
+      {isAdminMode && user && !isAdminAccount && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/30 px-5 backdrop-blur-md">
+
           <div className="w-[90%] max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
+
             <h2 className="mb-2 text-xl font-bold text-gray-900">
               Access Denied
             </h2>
@@ -76,33 +90,28 @@ function App() {
             >
               Logout
             </button>
+
           </div>
+
         </div>
       )}
 
-      {/* Admin */}
-      {isAdminMode && isAdmin && (
-        <div className="fixed bottom-5 right-5 z-[9998] flex gap-2">
-          <button className="rounded-lg bg-black px-4 py-3 text-white shadow-lg">
-            ✏️ Edit
-          </button>
 
-          <button className="rounded-lg bg-black px-4 py-3 text-white shadow-lg">
-            🖼️ Gambar
-          </button>
+      {/* ================= ADMIN CONTROLS ================= */}
 
-          <button className="rounded-lg bg-black px-4 py-3 text-white shadow-lg">
-            ➕ Katalog
-          </button>
+      {isAdmin && (
+        <div className="fixed bottom-5 right-5 z-9998 flex gap-2">
 
           <button
             onClick={() => signOut(auth)}
-            className="rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg"
+            className="rounded-lg bg-red-500 px-4 py-3 text-white shadow-lg transition hover:bg-red-600"
           >
             Logout
           </button>
+
         </div>
       )}
+
     </>
   );
 }

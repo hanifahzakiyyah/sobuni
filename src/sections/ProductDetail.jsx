@@ -422,32 +422,32 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
           <div>
 
             <EditableText
-              value="Belanja"
-              field="belanja"
-              collection="products"
-              document={product.id}
+              value={siteContent?.tombol || "Belanja"}
+              field="tombol"
+              collection="siteContent"
+              document="product"
               title="Tombol Belanja"
               isAdmin={isAdmin}
-              className="my-10 w-full"
             >
               {(value) => (
                 <button
                   type="button"
-                  className="flex h-12 w-full items-center justify-center rounded-lg bg-[#1d1d1f] text-[14px] text-white transition-colors duration-300 hover:bg-black md:h-14 md:text-[18px]"
+                  className="my-10 flex h-12 w-full items-center justify-center rounded-lg bg-[#1d1d1f] text-[14px] text-white transition-colors duration-300 hover:bg-black md:h-14 md:text-[18px]"
                 >
                   {value}
                 </button>
               )}
-            </EditableText>
-
+            </EditableText>  
             <EditableText
-              value="Pemesanan sementara lewat Instagram — DM aja, kami bantu pelan-pelan."
-              field="pesananInfo"
-              collection="products"
-              document={product.id}
+              value={
+                siteContent?.ket ||
+                "Pemesanan sementara lewat Instagram — DM aja, kami bantu pelan-pelan."
+              }
+              field="ket"
+              collection="siteContent"
+              document="product"
               title="Keterangan Pemesanan"
               isAdmin={isAdmin}
-              className="-mt-8 w-full"
             >
               {(value) => (
                 <p className="text-[10px] text-gray-500">
@@ -455,9 +455,7 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
                 </p>
               )}
             </EditableText>
-
           </div>
-
 
           {/* CARA PAKAI */}
           {product?.caraPakai?.length > 0 && (

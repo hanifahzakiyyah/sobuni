@@ -66,20 +66,22 @@ const Catalog = ({isAdmin}) => {
         <h2 className="mt-7 font-serif text-[38px] leading-none tracking-[-1.5px] text-[#1d1d1f] md:text-[48px]">
           Produk kami
         </h2>
-        <div className="flex flex-row w-40 items-center justify-center m-auto gap-2 mt-5"> 
-          <button
-            onClick={() => setShowAddProduct(true)}
-            className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
-          >
-            Tambah Produk
-          </button>
-          <button
-            onClick={() => setIsCategoryModalOpen(true)}
-            className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
-          >
-            Tambah Categories
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="flex flex-row w-40 items-center justify-center m-auto gap-2 mt-5"> 
+            <button
+              onClick={() => setShowAddProduct(true)}
+              className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
+            >
+              Tambah Produk
+            </button>
+            <button
+              onClick={() => setIsCategoryModalOpen(true)}
+              className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
+            >
+              Tambah Categories
+            </button>
+          </div>
+        )}
 
         <AddProductModal
           isOpen={showAddProduct}

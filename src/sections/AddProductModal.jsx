@@ -25,6 +25,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
   const [images, setImages] = useState([]);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -39,6 +41,9 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
         }));
 
         setCategories(data);
+        if (data.length > 0) {
+          setCategory(data[0].slug);
+        }
       } catch (error) {
         console.error("Gagal mengambil kategori:", error);
       }
@@ -55,16 +60,53 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
 
+    if (!files.length) return;
+
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+    const ALLOWED_TYPES = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
     const remainingSlots = 3 - images.length;
+
+    if (remainingSlots <= 0) {
+      e.target.value = "";
+      return;
+    }
 
     const selectedFiles = files.slice(0, remainingSlots);
 
-    const newImages = selectedFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
+    const validImages = [];
 
-    setImages((prev) => [...prev, ...newImages]);
+    for (const file of selectedFiles) {
+
+      // Cek format
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        alert(
+          `Format gambar tidak didukung.\n\n"${file.name}" bukan JPG, PNG, atau WEBP.`
+        );
+        continue;
+      }
+
+      // Cek ukuran
+      if (file.size > MAX_SIZE) {
+        alert(
+          `Ukuran gambar terlalu besar.\n\n"${file.name}" berukuran ${(file.size / 1024 / 1024).toFixed(2)} MB.\nMaksimal 5 MB.`
+        );
+        continue;
+      }
+
+      validImages.push({
+        file,
+        preview: URL.createObjectURL(file),
+      });
+    }
+
+    if (validImages.length > 0) {
+      setImages((prev) => [...prev, ...validImages]);
+    }
 
     // Supaya file yang sama bisa dipilih lagi
     e.target.value = "";
@@ -138,39 +180,79 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
   // UPLOAD SATU GAMBAR KE CLOUDINARY
   // =====================================================
 
-  const uploadImageToCloudinary = async (file) => {
-    const formData = new FormData();
+  const uploadImageToCloudinary = (file, onProgress) => {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
 
-    formData.append("file", file);
-    formData.append(
-      "upload_preset",
-      CLOUDINARY_UPLOAD_PRESET
-    );
-
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-
-      console.error(
-        "Cloudinary upload error:",
-        errorData
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        CLOUDINARY_UPLOAD_PRESET
       );
 
-      throw new Error(
-        "Gagal mengupload gambar ke Cloudinary."
+      const xhr = new XMLHttpRequest();
+
+      xhr.open(
+        "POST",
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
       );
-    }
 
-    const data = await response.json();
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round(
+            (event.loaded / event.total) * 100
+          );
 
-    return data.secure_url;
+          onProgress(percent);
+        }
+      });
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+
+            resolve(data.secure_url);
+          } catch (error) {
+            reject(
+              new Error("Respons dari Cloudinary tidak valid.")
+            );
+          }
+        } else {
+          let message = "Upload gambar gagal.";
+
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+
+            if (errorData?.error?.message) {
+              message = errorData.error.message;
+            }
+          } catch {
+            // Abaikan error parsing
+          }
+
+          console.error("Cloudinary upload error:", message);
+
+          reject(new Error(message));
+        }
+      };
+
+      xhr.onerror = () => {
+        reject(
+          new Error(
+            "Upload gagal. Periksa koneksi internet lalu coba lagi."
+          )
+        );
+      };
+
+      xhr.onabort = () => {
+        reject(
+          new Error("Upload gambar dibatalkan.")
+        );
+      };
+
+      xhr.send(formData);
+    });
   };
 
 
@@ -204,11 +286,34 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
       // 1. UPLOAD SEMUA GAMBAR KE CLOUDINARY
       // =================================================
 
-      const uploadedImageUrls = await Promise.all(
-        images.map((image) =>
-          uploadImageToCloudinary(image.file)
-        )
-      );
+      setUploadProgress(0);
+      setUploadStatus("Menyiapkan upload...");
+
+      const uploadedImageUrls = [];
+
+      for (let i = 0; i < images.length; i++) {
+        const image = images[i];
+
+        setUploadStatus(
+          `Mengupload gambar ${i + 1} dari ${images.length}...`
+        );
+
+        const url = await uploadImageToCloudinary(
+          image.file,
+          (percent) => {
+            const overallProgress =
+              ((i + percent / 100) / images.length) * 100;
+
+            setUploadProgress(
+              Math.round(overallProgress)
+            );
+          }
+        );
+
+        uploadedImageUrls.push(url);
+      }
+
+      setUploadStatus("Menyimpan produk...");
 
 
       // =================================================
@@ -293,7 +398,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
     });
 
     setTitle("");
-    setCategory("");
+    setCategory(categories[0]?.slug || "");
     setHarga("");
     setNetto("");
     setKeterangan("");
@@ -492,7 +597,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,image/webp"
+                      accept="image/*"
                       multiple
                       onChange={handleImageChange}
                       className="hidden"
@@ -569,10 +674,6 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                     text-xs
                   "
                 >
-                  <option value="">
-                    Pilih kategori
-                  </option>
-
                   {categories.map((item) => (
                     <option
                       key={item.id}
@@ -942,9 +1043,27 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                 "
               >
                 {isSaving
-                  ? "Mengupload & Menyimpan..."
+                  ? uploadStatus || "Memproses..."
                   : "Tambah Produk"}
               </button>
+
+              {isSaving && (
+                <div className="mt-3">
+                  <div className="mb-1 flex justify-between text-[10px] text-gray-500">
+                    <span>{uploadStatus}</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      className="h-full rounded-full bg-[#1d1d1f] transition-all duration-300"
+                      style={{
+                        width: `${uploadProgress}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
 
             </div>
 

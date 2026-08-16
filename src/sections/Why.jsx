@@ -39,7 +39,7 @@ const Why = ({ isAdmin }) => {
             isAdmin={isAdmin}
           >
             {(value) => (
-              <p className="text-[12px] tracking-[0.25em] text-[#1d1d1f] md:text-[14px]">
+              <p className="text-[10px] tracking-[0.25em] text-[#1d1d1f] md:text-[12px]">
                 {value}
               </p>
             )}
@@ -57,7 +57,7 @@ const Why = ({ isAdmin }) => {
             className="mt-7 max-w-175"
           >
             {(value) => (
-              <h2 className="font-serif text-[38px] leading-[1.05] tracking-[-1.5px] text-[#1d1d1f] md:text-[48px]">
+              <h2 className="font-serif text-[30px] leading-[1.05] tracking-[-1.5px] text-[#1d1d1f] md:text-[40px]">
                 {value}
               </h2>
             )}
@@ -65,7 +65,7 @@ const Why = ({ isAdmin }) => {
 
 
           {/* PARAGRAPHS */}
-          <div className="mt-8 max-w-175 space-y-7 text-[16px] leading-[1.7] text-[#1d1d1f] md:text-[18px]">
+          <div className="mt-8 max-w-175 space-y-7 text-[12px] leading-[1.7] text-[#1d1d1f] md:text-[14px]">
 
             {/* PARAGRAPH 1 */}
             <EditableText

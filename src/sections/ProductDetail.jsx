@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditableText from "./EditableText";
+import { updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebase/config";
 
-export default function ProductDetail({ product, onClose, isAdmin, categories = [] }) {
+export default function ProductDetail({ product, onClose, isAdmin, categories = [], onProductUpdated }) {
   const images = product?.images || [];
   const [currentImage, setCurrentImage] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(
+    product?.category || ""
+  );
+  const [hasChanges, setHasChanges] = useState(false);
 
   const nextImage = () => {
     if (images.length === 0) return;
@@ -27,6 +33,10 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
     : "-";
 
   const handleCategoryChange = async (newCategory) => {
+    const oldCategory = selectedCategory;
+
+    setSelectedCategory(newCategory);
+
     try {
       await updateDoc(
         doc(db, "products", product.id),
@@ -35,14 +45,35 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
         }
       );
 
+      onProductUpdated?.({
+        ...product,
+        category: newCategory,
+      });
+
+      setHasChanges(true);
+
     } catch (error) {
       console.error(
         "Gagal mengubah kategori:",
         error
       );
 
+      setSelectedCategory(oldCategory);
+
       alert("Gagal mengubah kategori.");
     }
+  };
+
+  useEffect(() => {
+    setSelectedCategory(product?.category || "");
+  }, [product?.category]);
+
+  const handleClose = () => {
+    if (hasChanges) {
+      alert("Perubahan berhasil disimpan.");
+    }
+
+    onClose();
   };
 
   return (
@@ -56,7 +87,7 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
 
         {/* TOMBOL CLOSE */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-2xl text-white transition hover:bg-black/80"
         >
           ×
@@ -235,7 +266,7 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
 
             {isAdmin ? (
               <select
-                value={product?.category || ""}
+                value={selectedCategory}
                 onChange={(e) =>
                   handleCategoryChange(e.target.value)
                 }
@@ -390,16 +421,40 @@ export default function ProductDetail({ product, onClose, isAdmin, categories = 
           {/* BUTTON */}
           <div>
 
-            <button
-              href="#belanja"
-              className="my-10 flex h-12 w-full items-center justify-center rounded-lg bg-[#1d1d1f] text-[14px] text-white transition-colors duration-300 hover:bg-black md:h-14 md:text-[18px]"
+            <EditableText
+              value="Belanja"
+              field="belanja"
+              collection="products"
+              document={product.id}
+              title="Tombol Belanja"
+              isAdmin={isAdmin}
+              className="my-10 w-full"
             >
-              Belanja
-            </button>
+              {(value) => (
+                <button
+                  type="button"
+                  className="flex h-12 w-full items-center justify-center rounded-lg bg-[#1d1d1f] text-[14px] text-white transition-colors duration-300 hover:bg-black md:h-14 md:text-[18px]"
+                >
+                  {value}
+                </button>
+              )}
+            </EditableText>
 
-            <p className="-mt-8 text-[10px] text-gray-500">
-              Pemesanan sementara lewat Instagram — DM aja, kami bantu pelan-pelan.
-            </p>
+            <EditableText
+              value="Pemesanan sementara lewat Instagram — DM aja, kami bantu pelan-pelan."
+              field="pesananInfo"
+              collection="products"
+              document={product.id}
+              title="Keterangan Pemesanan"
+              isAdmin={isAdmin}
+              className="-mt-8 w-full"
+            >
+              {(value) => (
+                <p className="text-[10px] text-gray-500">
+                  {value}
+                </p>
+              )}
+            </EditableText>
 
           </div>
 

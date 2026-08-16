@@ -86,6 +86,16 @@ const Catalog = ({isAdmin}) => {
     }
   };
 
+  const handleProductUpdated = (updatedProduct) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === updatedProduct.id
+          ? { ...product, ...updatedProduct }
+          : product
+      )
+    );
+  };
+
   
 
   return (
@@ -195,7 +205,7 @@ const Catalog = ({isAdmin}) => {
 
 
                     <h3 className="mt-6 max-w-150 font-serif text-[20px] leading-tight tracking-[-0.5px] text-[#1d1d1f] md:text-[28px]">
-                      {product.name}
+                      {product.title}
                     </h3>
 
 
@@ -274,6 +284,7 @@ const Catalog = ({isAdmin}) => {
         <ProductDetail
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          onProductUpdated={handleProductUpdated}
           categories={categories}
           isAdmin={isAdmin}
         />

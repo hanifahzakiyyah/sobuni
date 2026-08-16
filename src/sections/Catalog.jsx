@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 import { db } from "../firebase/config";
 import ProductDetail from "./ProductDetail";
 
 import AddProductModal from "./AddProductModal";
-import { fetchSignInMethodsForEmail } from "firebase/auth/web-extension";
 import CategoryModal from "./CategoryModal";
 
 
@@ -53,6 +52,41 @@ const Catalog = ({isAdmin}) => {
   if (loading) {
     return null;
   }
+  const handleDeleteProduct = async (product) => {
+    const confirmed = window.confirm(
+      `Yakin ingin menghapus produk "${product.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteDoc(
+        doc(db, "products", product.id)
+      );
+
+      // Refresh katalog setelah produk dihapus
+      await fetchCatalog();
+
+      // Kalau produk yang sedang dibuka adalah produk yang dihapus
+      if (selectedProduct?.id === product.id) {
+        setSelectedProduct(null);
+      }
+
+      alert("Produk berhasil dihapus.");
+
+    } catch (error) {
+      console.error(
+        "Gagal menghapus produk:",
+        error
+      );
+
+      alert(
+        "Gagal menghapus produk. Silakan coba lagi."
+      );
+    }
+  };
+
+  
 
   return (
     <section className="bg-[#f1f2f3] px-6 py-20 md:px-10 md:py-24" id="catalog">
@@ -132,7 +166,7 @@ const Catalog = ({isAdmin}) => {
 
             {/* ================= PRODUCTS ================= */}
 
-            <div className="mx-auto grid max-w-312.5 grid-cols-1 gap-12 md:max-w-200 md:grid-cols-2 md:gap-14">
+            <div className="mx-auto grid max-w-312.5 grid-cols-1 gap-12 md:max-w-200 md:grid-cols-2 md:gap-14 p-10">
 
               {categoryProducts.map((product) => (
 
@@ -175,13 +209,51 @@ const Catalog = ({isAdmin}) => {
                     </p>
 
 
-                    <button
-                      type="button"
-                      onClick={() => setSelectedProduct(product)}
-                      className="mt-8 inline-block border-b border-[#1d1d1f] pb-1 text-[12px] tracking-wide text-[#1d1d1f] transition-opacity duration-300 hover:opacity-60 md:text-[14px]"
-                    >
-                      Lihat produk
-                    </button>
+                    <div className="mt-8 flex items-center gap-5">
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProduct(product)}
+                        className="
+                          border-b
+                          border-[#1d1d1f]
+                          pb-1
+                          text-[12px]
+                          tracking-wide
+                          text-[#1d1d1f]
+                          transition-opacity
+                          duration-300
+                          hover:opacity-60
+                          md:text-[14px]
+                        "
+                      >
+                        Lihat produk
+                      </button>
+
+
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProduct(product)}
+                          className="
+                            flex
+                            h-9
+                            w-9
+                            items-center
+                            justify-center
+                            rounded-full
+                            text-red-500
+                            transition
+                            hover:bg-red-50
+                            hover:text-red-600
+                          "
+                          title="Hapus produk"
+                        >
+                          🗑️
+                        </button>
+                      )}
+
+                    </div>
 
                   </div>
 
@@ -202,6 +274,7 @@ const Catalog = ({isAdmin}) => {
         <ProductDetail
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          categories={categories}
           isAdmin={isAdmin}
         />
       )}

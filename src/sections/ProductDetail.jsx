@@ -1,7 +1,7 @@
 import { useState } from "react";
 import EditableText from "./EditableText";
 
-export default function ProductDetail({ product, onClose, isAdmin }) {
+export default function ProductDetail({ product, onClose, isAdmin, categories = [] }) {
   const images = product?.images || [];
   const [currentImage, setCurrentImage] = useState(0);
 
@@ -26,13 +26,32 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
       }).format(Number(product.harga))
     : "-";
 
+  const handleCategoryChange = async (newCategory) => {
+    try {
+      await updateDoc(
+        doc(db, "products", product.id),
+        {
+          category: newCategory,
+        }
+      );
+
+    } catch (error) {
+      console.error(
+        "Gagal mengubah kategori:",
+        error
+      );
+
+      alert("Gagal mengubah kategori.");
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60">
 
       {/* MODAL CONTAINER */}
       <div
         className="
-          relative h-screen w-full bg-white overflow-y-auto md:overflow-hidden flex flex-col md:flex-row"
+          relative h-screen w-[80%] ml-[7%] bg-white overflow-y-auto md:overflow-hidden flex flex-col md:flex-row"
       >
 
         {/* TOMBOL CLOSE */}
@@ -214,17 +233,27 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
           {/* CATEGORY + NETTO */}
           <p className="my-5 text-[8px] uppercase tracking-[0.25em] text-[#1d1d1f] md:text-[10px]">
 
-            <EditableText
-              value={product?.category}
-              field="category"
-              collection="products"
-              document={product.id}
-              title="Category"
-              isAdmin={isAdmin}
-              className="inline"
-            >
-              {(value) => <span>{value}</span>}
-            </EditableText>
+            {isAdmin ? (
+              <select
+                value={product?.category || ""}
+                onChange={(e) =>
+                  handleCategoryChange(e.target.value)
+                }
+              >
+                {categories.map((category) => (
+                  <option
+                    key={category.id}
+                    value={category.slug}
+                  >
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span>
+                {product?.category}
+              </span>
+            )}
 
             {" | "}
 
@@ -273,7 +302,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
               className="mt-3 w-full"
             >
               {(value) => (
-                <p className="text-base text-gray-500">
+                <p className="text-xs text-gray-500">
                   {value}
                 </p>
               )}
@@ -292,7 +321,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
             className="my-10 mt-5"
           >
             {(value) => (
-              <p className="text-2xl font-semibold text-gray-900">
+              <p className="text-base font-semibold text-gray-900">
                 {new Intl.NumberFormat("id-ID", {
                   style: "currency",
                   currency: "IDR",
@@ -316,7 +345,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
               className="w-full"
             >
               {(value) => (
-                <p className="leading-7 text-gray-600">
+                <p className="leading-7 text-gray-600 text-xs">
                   {value}
                 </p>
               )}
@@ -345,7 +374,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
                     className="w-full"
                   >
                     {(value) => (
-                      <p className="leading-6 text-gray-600">
+                      <p className="leading-6 text-gray-600 text-xs">
                         {value}
                       </p>
                     )}
@@ -363,12 +392,12 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
 
             <button
               href="#belanja"
-              className="my-10 flex h-14 w-full items-center justify-center rounded-lg bg-[#1d1d1f] text-[20px] text-white transition-colors duration-300 hover:bg-black md:h-14 md:text-[23px]"
+              className="my-10 flex h-12 w-full items-center justify-center rounded-lg bg-[#1d1d1f] text-[14px] text-white transition-colors duration-300 hover:bg-black md:h-14 md:text-[18px]"
             >
               Belanja
             </button>
 
-            <p className="-mt-8 text-sm text-gray-500">
+            <p className="-mt-8 text-[10px] text-gray-500">
               Pemesanan sementara lewat Instagram — DM aja, kami bantu pelan-pelan.
             </p>
 
@@ -379,7 +408,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
           {product?.caraPakai?.length > 0 && (
             <section className="mt-8">
 
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">
+              <h2 className="mb-4 text-xs font-semibold text-gray-900">
                 Cara Pakai
               </h2>
 
@@ -402,7 +431,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
                         justify-center
                         rounded-full
                         bg-gray-100
-                        text-sm
+                        text-xs
                         font-medium
                         text-gray-700
                       "
@@ -426,7 +455,7 @@ export default function ProductDetail({ product, onClose, isAdmin }) {
                       className="flex-1"
                     >
                       {(value) => (
-                        <span className="leading-7">
+                        <span className="text-xs">
                           {value}
                         </span>
                       )}

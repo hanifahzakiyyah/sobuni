@@ -333,8 +333,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
           relative
           flex
           max-h-[95vh]
-          w-full
-          max-w-3xl
+          w-[85%]
+          ml-[-7%]
           flex-col
           overflow-hidden
           rounded-2xl
@@ -404,7 +404,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
             <div>
 
-              <label className="mb-3 block text-sm font-medium text-gray-900">
+              <label className="mb-3 block text-xs font-medium text-gray-900">
                 Gambar Produk
               </label>
 
@@ -486,7 +486,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                       +
                     </span>
 
-                    <span className="mt-1 text-xs">
+                    <span className="mt-1 text-[10px]">
                       Tambah gambar
                     </span>
 
@@ -503,7 +503,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
               </div>
 
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-[10px] text-gray-400">
                 Maksimal 3 gambar · JPG, PNG, atau WebP
               </p>
 
@@ -516,7 +516,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
             <div>
 
-              <label className="mb-2 block text-sm font-medium text-gray-900">
+              <label className="mb-2 block text-xs font-medium text-gray-900">
                 Nama Produk
               </label>
 
@@ -534,6 +534,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   py-3
                   outline-none
                   focus:border-gray-700
+                  text-xs
                 "
               />
 
@@ -548,7 +549,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-900">
+                <label className="mb-2 block text-xs font-medium text-gray-900">
                   Category
                 </label>
 
@@ -565,6 +566,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                     py-3
                     outline-none
                     focus:border-gray-700
+                    text-xs
                   "
                 >
                   <option value="">
@@ -586,7 +588,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-900">
+                <label className="mb-2 block text-xs font-medium text-gray-900">
                   Netto
                 </label>
 
@@ -604,6 +606,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                     py-3
                     outline-none
                     focus:border-gray-700
+                    text-xs
                   "
                 />
 
@@ -618,7 +621,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
             <div>
 
-              <label className="mb-2 block text-sm font-medium text-gray-900">
+              <label className="mb-2 block text-xs font-medium text-gray-900">
                 Harga
               </label>
 
@@ -629,6 +632,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                 onChange={(e) => setHarga(e.target.value)}
                 placeholder="159000"
                 className="
+                text-xs
                   w-full
                   rounded-lg
                   border
@@ -649,7 +653,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
             <div>
 
-              <label className="mb-2 block text-sm font-medium text-gray-900">
+              <label className="mb-2 block text-xs font-medium text-gray-900">
                 Keterangan
               </label>
 
@@ -667,6 +671,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   py-3
                   outline-none
                   focus:border-gray-700
+                  text-xs
                 "
               />
 
@@ -679,7 +684,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
             <div>
 
-              <label className="mb-2 block text-sm font-medium text-gray-900">
+              <label className="mb-2 block text-xs font-medium text-gray-900">
                 Deskripsi
               </label>
 
@@ -698,6 +703,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   py-3
                   outline-none
                   focus:border-gray-700
+                  text-xs
                 "
               />
 
@@ -712,7 +718,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
               <div className="mb-3 flex items-center justify-between">
 
-                <label className="text-sm font-medium text-gray-900">
+                <label className="text-xs font-medium text-gray-900">
                   Keunggulan
                 </label>
 
@@ -720,7 +726,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   type="button"
                   onClick={addListItem}
                   className="
-                    text-sm
+                    text-xs
                     font-medium
                     text-gray-700
                     hover:underline
@@ -752,6 +758,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                       placeholder="✓ 0% fragrance — tanpa pewangi tambahan"
                       className="
                         w-full
+                        text-xs
                         rounded-lg
                         border
                         border-gray-300
@@ -797,7 +804,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
 
               <div className="mb-3 flex items-center justify-between">
 
-                <label className="text-sm font-medium text-gray-900">
+                <label className="text-xs font-medium text-gray-900">
                   Cara Pakai
                 </label>
 
@@ -805,7 +812,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   type="button"
                   onClick={addCaraPakai}
                   className="
-                    text-sm
+                    text-xs
                     font-medium
                     text-gray-700
                     hover:underline
@@ -835,7 +842,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                         justify-center
                         rounded-lg
                         bg-gray-100
-                        text-sm
+                        text-xs
                         font-medium
                         text-gray-600
                       "
@@ -855,6 +862,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                       placeholder="Basahi wajah dengan air."
                       className="
                         w-full
+                        text-xs
                         rounded-lg
                         border
                         border-gray-300
@@ -907,11 +915,11 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   rounded-lg
                   border
                   border-gray-300
-                  px-5
-                  py-3
                   text-gray-700
                   transition
                   hover:bg-gray-50
+                  h-12
+                  text-xs
                 "
               >
                 Batal
@@ -924,8 +932,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded}) => {
                   flex-1
                   rounded-lg
                   bg-[#1d1d1f]
-                  px-5
-                  py-3
+                  h-12
+                  text-xs
                   text-white
                   transition
                   hover:bg-black

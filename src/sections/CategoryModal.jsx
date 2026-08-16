@@ -2,6 +2,8 @@ import { useState } from "react";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 
 import { db } from "../firebase/config";
@@ -95,6 +97,46 @@ const CategoryModal = ({
     }
   };
 
+  // =========================
+  // HAPUS KATEGORI
+  // =========================
+
+  const handleDeleteCategory = async (category) => {
+    const confirmed = window.confirm(
+      `pastiin kategori "${category.name}" ini ga lagi dipakai produk manapun. soale klo kategori dihapus padahal algi dipakai suatu produk, nnti produknya ga bisa muncul di katalog. jadi produknya diganti dlu aja kategorinya.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setSaving(true);
+
+      await deleteDoc(
+        doc(db, "categories", category.id)
+      );
+
+      // Refresh categories di Catalog
+      if (onSaved) {
+        await onSaved();
+      }
+
+      alert("Kategori berhasil dihapus.");
+
+    } catch (error) {
+      console.error(
+        "Gagal menghapus kategori:",
+        error
+      );
+
+      alert(
+        "Gagal menghapus kategori. Silakan coba lagi."
+      );
+
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -120,13 +162,13 @@ const CategoryModal = ({
         className="
           relative
           max-h-[90vh]
-          w-full
-          max-w-lg
+          w-[80%]
           overflow-y-auto
           rounded-2xl
           bg-white
           p-6
           shadow-2xl
+          ml-[-10%]
         "
       >
 
@@ -163,7 +205,7 @@ const CategoryModal = ({
             TITLE
         ========================= */}
 
-        <h2 className="mb-8 pr-10 text-xl font-semibold text-gray-900">
+        <h2 className="mb-8 pr-10 text-base font-semibold text-gray-900">
           Kelola Kategori
         </h2>
 
@@ -174,7 +216,7 @@ const CategoryModal = ({
 
         <section>
 
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">
+          <h3 className="mb-4 text-sm font-semibold text-gray-500">
             Kategori Saat Ini
           </h3>
 
@@ -197,29 +239,62 @@ const CategoryModal = ({
                   "
                 >
 
-                  <EditableText
-                    value={category.name}
-                    field="name"
-                    collection="categories"
-                    document={category.id}
-                    title="Nama Kategori"
-                    isAdmin={isAdmin}
-                    className="w-full"
-                  >
-                    {(value) => (
-                      <div className="pr-8">
+                  <div className="flex items-center justify-between gap-3">
 
-                        <p className="font-medium text-gray-900">
-                          {value}
-                        </p>
+                    <EditableText
+                      value={category.name}
+                      field="name"
+                      collection="categories"
+                      document={category.id}
+                      title="Nama Kategori"
+                      isAdmin={isAdmin}
+                      className="flex-1 mr-5"
+                    >
+                      {(value) => (
+                        <div className="pr-2">
 
-                        <p className="mt-1 text-xs text-gray-400">
-                          {category.slug}
-                        </p>
+                          <p className=" text-gray-900 text-[12px] md:text-[14px]">
+                            {value}
+                          </p>
 
-                      </div>
+                          <p className="mt-1 text-[10px] text-gray-400">
+                            {category.slug}
+                          </p>
+
+                        </div>
+                      )}
+                    </EditableText>
+
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDeleteCategory(category)
+                        }
+                        disabled={saving}
+                        className="
+                          flex
+                          h-9
+                          w-9
+                          shrink-0
+                          items-center
+                          justify-center
+                          rounded-full
+                          text-red-500
+                          transition
+                          hover:bg-red-50
+                          hover:text-red-600
+                          disabled:cursor-not-allowed
+                          disabled:opacity-50
+                        "
+                        title="Hapus kategori"
+                      >
+                        🗑️
+                      </button>
                     )}
-                  </EditableText>
+
+                  </div>
 
                 </div>
 
@@ -251,7 +326,7 @@ const CategoryModal = ({
 
         <section>
 
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
             Tambah Kategori
           </h3>
 
@@ -265,7 +340,7 @@ const CategoryModal = ({
 
             <div>
 
-              <label className="mb-2 block text-sm font-medium text-gray-900">
+              <label className="mb-2 block text-xs font-medium text-gray-900">
                 Nama Kategori
               </label>
 
@@ -286,6 +361,7 @@ const CategoryModal = ({
                   transition
                   focus:border-gray-700
                   disabled:bg-gray-100
+                  text-xs
                 "
               />
 
@@ -296,7 +372,7 @@ const CategoryModal = ({
 
             <div>
 
-              <label className="mb-2 block text-sm font-medium text-gray-900">
+              <label className="mb-2 block text-xs font-medium text-gray-900">
                 Slug
               </label>
 
@@ -319,11 +395,12 @@ const CategoryModal = ({
                   transition
                   focus:border-gray-700
                   disabled:bg-gray-100
+                  text-xs
                 "
               />
 
-              <p className="mt-2 text-xs text-gray-500">
-                Slug akan digunakan sebagai kategori pada produk.
+              <p className="mt-2 text-[10px] text-gray-500">
+                ga usah hirauin slugnya. otomatis terisi kok itu
               </p>
 
             </div>

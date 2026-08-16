@@ -72,13 +72,13 @@ const Catalog = ({isAdmin}) => {
               onClick={() => setShowAddProduct(true)}
               className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
             >
-              Tambah Produk
+              Tambah Produk ✏️
             </button>
             <button
               onClick={() => setIsCategoryModalOpen(true)}
               className="flex h-12 w-3xl items-center justify-center text-[10px] transition-colors duration-300 md:text-[12px] rounded-lg border"
             >
-              Tambah Categories
+              Tambah Categories ✏️
             </button>
           </div>
         )}
